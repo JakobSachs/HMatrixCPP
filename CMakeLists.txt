@@ -15,11 +15,27 @@ find_package(LAPACK REQUIRED)
 # Add the include directories
 include_directories(include)
 
+# Add the include directories for the BLAS and LAPACK libraries
+include_directories("/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.2.sdk/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/Headers")
+
+
 # Define the source files and headers
-file(GLOB SOURCES "src/*.cpp")
+file(GLOB headers "include/*.h")
 
 # Add the library target
-add_library(HMatrixCPP STATIC ${SOURCES})
+add_library(HMatrixCPP INTERFACE ${headers})
+
+# Link the library with the BLAS and LAPACK libraries and set the output name
+target_link_libraries(HMatrixCPP INTERFACE ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+
+# Check if we are on macOS
+if(APPLE)
+    # Check if the macOS version is greater than or equal to 13.3
+    if(CMAKE_SYSTEM_VERSION VERSION_GREATER_EQUAL "21.4.0") # 21.4.0 corresponds to macOS 13.3
+        # Add compile definitions for updated LAPACK interface
+        add_definitions(-DACCELERATE_NEW_LAPACK -DACCELERATE_LAPACK_ILP64)
+    endif()
+endif()
 
 #include google test
 include(FetchContent)
@@ -36,9 +52,16 @@ enable_testing()
 # Define the test executable
 file(GLOB TEST_SOURCES "tests/unit_tests/*.cpp")
 add_executable(unit_tests ${TEST_SOURCES})
+target_compile_options(unit_tests PRIVATE -Wall -Wextra -Wpedantic)
+
+
+if(APPLE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-nullability-extension")
+    add_compile_definitions(__APPLE__)
+endif()
 
 # Link the test executable with the library and Google Test
-target_link_libraries(unit_tests HMatrixCPP gtest gtest_main ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+target_link_libraries(unit_tests gtest gtest_main ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} HMatrixCPP)
 
 # Add the tests to be run
 add_test(NAME unit_test COMMAND unit_tests)
