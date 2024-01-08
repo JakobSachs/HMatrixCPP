@@ -23,6 +23,12 @@ public:
   // Default constructor (TODO: initalize from other container)
   SVector() : buff() {}
 
+  // Public getter for const access to buff
+  const T *data() const { return buff.data(); }
+
+  // Public getter for non-const access to buff
+  T *data() { return buff.data(); }
+
   // Overloaded subscript operator for non-const access
   // Throws std::out_of_range if index is out of bounds
   T &operator[](std::size_t i) {

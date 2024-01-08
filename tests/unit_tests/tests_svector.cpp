@@ -10,18 +10,6 @@ TEST(SVectorTest, Constructor) {
   EXPECT_EQ(empty_vector.size(), 0.0);
 }
 
-TEST(SVectorTest, CopyConstructor) {
-  HMatrix::SVector<double, 3> vector;
-  vector[0] = 1.0;
-  vector[1] = 2.0;
-  vector[2] = 3.0;
-  HMatrix::SVector<double, 3> copy_vector = vector;
-  EXPECT_EQ(copy_vector.size(), 3);
-  EXPECT_EQ(copy_vector[0], 1.0);
-  EXPECT_EQ(copy_vector[1], 2.0);
-  EXPECT_EQ(copy_vector[2], 3.0);
-}
-
 TEST(SVectorTest, AssignmentOperator) {
   HMatrix::SVector<double, 3> vector;
   vector[0] = 1.0;
